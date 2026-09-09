@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 from .client import DEFAULT_SEARCH_FIELDS, EDGE_DIRECTIONS, CellKgSearchClient
 
-mcp = FastMCP("cell-kg-search")
+mcp = MCPServer("cell-kg-search")
 client = CellKgSearchClient()
 
 
@@ -147,7 +147,7 @@ def main() -> None:
         mcp.settings.host = os.environ.get("HOST", "0.0.0.0")
         mcp.settings.port = int(os.environ.get("PORT", "8000"))
 
-        # FastMCP auto-enables DNS-rebinding protection with a LOCALHOST-only
+        # MCPServer auto-enables DNS-rebinding protection with a LOCALHOST-only
         # allow-list (it's constructed while host is still 127.0.0.1). Behind a
         # managed HTTPS host (Render/AWS) the incoming Host header is the public
         # domain, which that policy rejects with HTTP 421 "Invalid Host header".

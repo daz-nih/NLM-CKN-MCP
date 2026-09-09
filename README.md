@@ -19,23 +19,32 @@ This is the path for everyone who just wants to *use* the tools. **Nothing to
 install, no Python, no Claude Desktop** — it works in the browser at
 [claude.ai](https://claude.ai).
 
-1. Open **[claude.ai](https://claude.ai)** and sign in.
-2. Click your initials (bottom-left) → **Settings**.
-3. Go to **Connectors** → **Add custom connector**.
-4. Give it a name — `NLM-CKN` — and paste this address:
+1. Go to **[claude.ai](https://claude.ai)** and sign in.
+2. In the left sidebar, scroll down to below **Customize** and select
+   **Connectors**, then **Add custom connector**.
+3. Give it a name (I called it `NLM-CKN`) and paste this address:
 
    ```
    https://nlm-ckn-mcp.onrender.com/mcp
    ```
 
-   → **Add**.
-5. Start a new chat and ask something like:
+   **No OAuth Client ID or OAuth Client Secret is required** — leave those blank.
+4. Press **Add**.
 
-   > Search Cell-KN for "T cell" and show me the top results.
+   ![Add custom connector dialog: name NLM-CKN and the /mcp URL, OAuth fields left blank](docs/source/_static/connector-add.png)
 
-   > Take CL/0000084 and show me what it's connected to in the graph.
+5. This connects you. In your **Connectors** list you'll see **N — NLM-CKN**
+   with a **✓** checkmark (Type *Web*, *Custom*), confirming you're connected.
 
-   The first time, Claude asks permission to use the connector — allow it.
+   ![Connectors list showing NLM-CKN connected with a checkmark](docs/source/_static/connector-success.png)
+
+Then start a new chat and ask something like:
+
+> Search Cell-KN for "T cell" and show me the top results.
+
+> Take CL/0000084 and show me what it's connected to in the graph.
+
+Any problems, feel free to reach out.
 
 **Requirements / good to know:**
 
@@ -43,8 +52,9 @@ install, no Python, no Claude Desktop** — it works in the browser at
 - On a **Team/Enterprise** organization, an **admin may need to enable custom
   connectors** before the option appears. If you don't see *Add custom
   connector*, ask your Claude workspace admin.
-- If a first request seems slow, give it a moment and retry — the server is
-  always-on, but a cold network hop can occasionally lag.
+- If the very first connection attempt fails with a sign-in / registration
+  error, just press **Connect** again — the server may have been waking up, and
+  a second try after it's warm goes through.
 
 ---
 

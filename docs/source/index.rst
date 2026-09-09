@@ -15,6 +15,33 @@ knowledge required.
   <https://github.com/NIH-NLM/NLM-CKN-MCP>`_
 
 
+Connect in your browser
+-----------------------
+
+No install required. At `claude.ai <https://claude.ai>`_, open **Settings** →
+**Connectors** (scroll down to below *Customize*) → **Add custom connector**.
+Give it a name (e.g. ``NLM-CKN``) and paste ``https://nlm-ckn-mcp.onrender.com/mcp``
+— **no OAuth Client ID or Secret is required** — then press **Add**.
+
+.. figure:: /_static/connector-add.png
+   :alt: Add custom connector dialog with the NLM-CKN name and /mcp URL
+   :width: 100%
+
+   The *Add custom connector* dialog — name it and paste the ``/mcp`` URL; leave
+   the OAuth fields blank.
+
+On success it appears in your **Connectors** list with a checkmark:
+
+.. figure:: /_static/connector-success.png
+   :alt: Connectors list showing NLM-CKN connected with a checkmark
+   :width: 100%
+
+   ``N — NLM-CKN`` connected (Type *Web*, *Custom*).
+
+If the first attempt shows a sign-in/registration error, press **Connect** again
+— the server may have been waking up, and a warm retry goes through.
+
+
 Why go through this server
 --------------------------
 

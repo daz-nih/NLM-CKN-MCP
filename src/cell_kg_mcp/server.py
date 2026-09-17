@@ -40,26 +40,55 @@ def search_cell_kn(
     limit: int = 10,
     search_fields: list[str] | None = None,
     include_raw: bool = False,
+    graph_depth = 1,
+    edge_dir = "ANY",
 ) -> dict[str, Any]:
     """Search the NLM Cell Knowledge Network via https://stage.nlm-ckn.org/arango_api/search/."""
+    cleaned_query = query.strip()
+    fields = search_fields or DEFAULT_SEARCH_FIELDS[db]
+
+    # This mirrors exactly what CellKgSearchClient.search() sends to the server.
+    # If client.search()'s internal payload construction ever changes, update
+    # this to match.
+    search_request_payload = {
+        "search_term": cleaned_query,
+        "db": db,
+        "search_fields": fields,
+    }
+
     results = client.search(
         query=query,
         db=db,
         search_fields=search_fields,
         limit=limit,
     )
-
     compact_results = [_compact_result(item) for item in results]
-    payload: dict[str, Any] = {
+
+    # Build the subgraph from the node ids returned by search.
+    node_ids = [item["_id"] for item in results if item.get("_id")]
+    subgraph: dict[str, Any] | None = None
+    if node_ids:
+        try:
+            subgraph = client.graph(
+                node_ids,
+                depth=graph_depth,
+                edge_direction=edge_direction,
+            )
+        except (RuntimeError, ValueError) as exc:
+            subgraph = {"error": str(exc)}
+
+    response_payload: dict[str, Any] = {
         "query": query,
         "db": db,
         "count": len(results),
         "results": compact_results,
         "default_search_fields": DEFAULT_SEARCH_FIELDS[db],
+        "search_request_payload": search_request_payload,
+        "subgraph": subgraph,
     }
     if include_raw:
-        payload["raw_results"] = results
-    return payload
+        response_payload["raw_results"] = results
+    return response_payload
 
 
 @mcp.tool()

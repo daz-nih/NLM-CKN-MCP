@@ -48,6 +48,11 @@ def search_cell_kn(
         search_fields=search_fields,
         limit=limit,
     )
+    submitted_query = {
+        "search_term": query.strip(),
+        "db": db,
+        "search_fields": fields,
+    }
     compact_results = [_compact_result(item) for item in results]
     payload: dict[str, Any] = {
         "query": query,
@@ -55,6 +60,7 @@ def search_cell_kn(
         "count": len(results),
         "results": compact_results,
         "default_search_fields": DEFAULT_SEARCH_FIELDS[db],
+        "submitted_query": submitted_query,
     }
     if include_raw:
         payload["raw_results"] = results

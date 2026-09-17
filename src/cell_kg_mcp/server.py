@@ -41,7 +41,7 @@ def search_cell_kn(
     search_fields: list[str] | None = None,
     include_raw: bool = False,
     graph_depth: int = 1,
-    edge_dir: str = "ANY",
+    edge_direction: str = "ANY",
 ) -> dict[str, Any]:
     """Search the NLM Cell Knowledge Network via https://stage.nlm-ckn.org/arango_api/search/."""
     cleaned_query = query.strip()

@@ -48,6 +48,7 @@ def search_cell_kn(
         search_fields=search_fields,
         limit=limit,
     )
+    fields = search_fields or DEFAULT_SEARCH_FIELDS[db]
     submitted_query = {
         "search_term": query.strip(),
         "db": db,

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 
 from .client import DEFAULT_SEARCH_FIELDS, EDGE_DIRECTIONS, CellKgSearchClient
 
-mcp = FastMCP("cell-kg-search")
+mcp = MCPServer("cell-kg-search")
 client = CellKgSearchClient()
 
 

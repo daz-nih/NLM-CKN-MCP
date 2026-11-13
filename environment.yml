@@ -6,3 +6,5 @@ dependencies:
   - mcp
   - requests
   - pytest
+  - boto3
+  - python-arango

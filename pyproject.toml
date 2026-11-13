@@ -12,6 +12,8 @@ dependencies = [
   # >=1.10 guarantees the Streamable HTTP transport used for remote/web hosting.
   "mcp>=1.10.0",
   "requests>=2.31.0",
+  "boto3",
+  "python-arango"
 ]
 
 [project.optional-dependencies]

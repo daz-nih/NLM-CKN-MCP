@@ -36,6 +36,43 @@ GRAPH_COLLECTIONS = [
 
 EDGE_DIRECTIONS = ("ANY", "OUTBOUND", "INBOUND")
 
+import os
+
+import boto3
+from arango import ArangoClient
+
+
+def connect_arango(database_name: str):
+    session = boto3.Session(
+        profile_name=os.environ["AWS_PROFILE"],
+        region_name="us-east-1",
+    )
+
+    response = session.client("secretsmanager").get_secret_value(
+        SecretId=os.environ["ARANGO_SECRET_ID"],
+    )
+
+    # Assumes SecretString contains the password itself,
+    # matching how your existing tunnel script uses it.
+    password = response["SecretString"]
+
+    driver = ArangoClient(
+        hosts="http://127.0.0.1:8530",
+        request_timeout=20,
+    )
+
+    try:
+        database = driver.db(
+            name=database_name,
+            username=os.environ["ARANGO_USERNAME"],
+            password=password,
+            verify=True,
+        )
+    except Exception:
+        driver.close()
+        raise
+
+    return driver, database
 
 @dataclass
 class CellKgSearchClient:
@@ -138,4 +175,52 @@ class CellKgSearchClient:
             if n.get("_id") == node_id:
                 return n
         return None
+
+if __name__ == "__main__":
+    import json
+
+    # List database names using your existing administrative secret.
+    driver, system_db = connect_arango("_system")
+    try:
+        print("Available databases:")
+        print(json.dumps(system_db.databases(), indent=2))
+    finally:
+        driver.close()
+
+    database_name = input(
+        "\nDatabase to inspect: "
+    ).strip()
+
+    if not database_name:
+        raise SystemExit("A database name is required.")
+
+    driver, database = connect_arango(database_name)
+    try:
+        metadata = {
+            "database": database_name,
+            "collections": [
+                {
+                    "name": collection["name"],
+                    "type": collection["type"],
+                }
+                for collection in database.collections()
+                if not collection["name"].startswith("_")
+            ],
+            "graphs": [
+                {
+                    "name": graph["name"],
+                    "edge_definitions": database.graph(
+                        graph["name"]
+                    ).edge_definitions(),
+                }
+                for graph in database.graphs()
+            ],
+            "views": [
+                database.view(view["name"])
+                for view in database.views()
+            ],
+        }
+        print(json.dumps(metadata, indent=2))
+    finally:
+        driver.close()
 

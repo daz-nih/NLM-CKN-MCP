@@ -43,18 +43,19 @@ from arango import ArangoClient
 
 
 def connect_arango(database_name: str):
-    session = boto3.Session(
-        profile_name=os.environ["AWS_PROFILE"],
-        region_name="us-east-1",
-    )
+    import getpass
+    import warnings
 
-    response = session.client("secretsmanager").get_secret_value(
-        SecretId=os.environ["ARANGO_SECRET_ID"],
-    )
+    from arango import ArangoClient
 
-    # Assumes SecretString contains the password itself,
-    # matching how your existing tunnel script uses it.
-    password = response["SecretString"]
+    username = input("ArangoDB username: ").strip()
+    if not username:
+        raise ValueError("ArangoDB username is required")
+
+    # Abort if the terminal cannot hide password entry.
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", getpass.GetPassWarning)
+        password = getpass.getpass("ArangoDB password: ")
 
     driver = ArangoClient(
         hosts="http://127.0.0.1:8530",
@@ -64,7 +65,7 @@ def connect_arango(database_name: str):
     try:
         database = driver.db(
             name=database_name,
-            username=os.environ["ARANGO_USERNAME"],
+            username=username,
             password=password,
             verify=True,
         )

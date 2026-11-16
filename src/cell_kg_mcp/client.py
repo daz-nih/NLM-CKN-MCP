@@ -181,7 +181,7 @@ if __name__ == "__main__":
     import json
 
     # List database names using your existing administrative secret.
-    driver, system_db = connect_arango("_system")
+    driver, system_db = connect_arango("Cell-KN-Phenotypes")
     try:
         print("Available databases:")
         print(json.dumps(system_db.databases(), indent=2))

@@ -180,25 +180,19 @@ class CellKgSearchClient:
 if __name__ == "__main__":
     import json
 
-    # List database names using your existing administrative secret.
-    driver, system_db = connect_arango("Cell-KN-Phenotypes")
+    driver, database = connect_arango("Cell-KN-Phenotypes")
+
     try:
-        print("Available databases:")
-        print(json.dumps(system_db.databases(), indent=2))
-    finally:
-        driver.close()
+        print("Connected to Cell-KN-Phenotypes.")
 
-    database_name = input(
-        "\nDatabase to inspect: "
-    ).strip()
+        result = list(database.aql.execute("RETURN 1"))
+        if result != [1]:
+            raise RuntimeError("Unexpected AQL test response")
 
-    if not database_name:
-        raise SystemExit("A database name is required.")
+        print("AQL connection test passed.")
 
-    driver, database = connect_arango(database_name)
-    try:
         metadata = {
-            "database": database_name,
+            "database": database.name,
             "collections": [
                 {
                     "name": collection["name"],
@@ -207,21 +201,13 @@ if __name__ == "__main__":
                 for collection in database.collections()
                 if not collection["name"].startswith("_")
             ],
-            "graphs": [
-                {
-                    "name": graph["name"],
-                    "edge_definitions": database.graph(
-                        graph["name"]
-                    ).edge_definitions(),
-                }
-                for graph in database.graphs()
-            ],
+            "graphs": database.graphs(),
             "views": [
                 database.view(view["name"])
                 for view in database.views()
             ],
         }
+
         print(json.dumps(metadata, indent=2))
     finally:
         driver.close()
-

@@ -1,26 +1,42 @@
 from __future__ import annotations
 
-from typing import Any
+import anyio
 
-from mcp import Client
-from mcp.server import MCPServer
+from mcp.client.streamable_http import streamable_http_client
+from mcp.server.stdio import stdio_server
 
-mcp = MCPServer("cell-kn-aql-test")
 SERVER_URL = "http://127.0.0.1:8000/mcp"
 
 
-@mcp.tool()
-async def run_aql(
-    query: str,
-    bind_vars: dict[str, Any] | None = None,
-):
-    """Execute AQL against Cell-KN-Phenotypes through the local server."""
-    async with Client(SERVER_URL) as connection:
-        return await connection.call_tool(
-            "run_aql",
-            {"query": query, "bind_vars": bind_vars},
-        )
+async def relay(source, destination, cancel_scope) -> None:
+    try:
+        async for message in source:
+            if isinstance(message, Exception):
+                raise message
+            await destination.send(message)
+    finally:
+        cancel_scope.cancel()
+
+
+async def main() -> None:
+    async with stdio_server() as (desktop_read, desktop_write):
+        async with streamable_http_client(SERVER_URL) as streams:
+            server_read, server_write = streams[:2]
+
+            async with anyio.create_task_group() as tasks:
+                tasks.start_soon(
+                    relay,
+                    desktop_read,
+                    server_write,
+                    tasks.cancel_scope,
+                )
+                tasks.start_soon(
+                    relay,
+                    server_read,
+                    desktop_write,
+                    tasks.cancel_scope,
+                )
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    anyio.run(main)
